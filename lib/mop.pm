@@ -4,7 +4,7 @@ use v5.16;
 use mro;
 use warnings;
 
-use Sub::Install;
+use Exporter::Lexical 0.02 ();
 
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
@@ -22,19 +22,19 @@ use mop::internals::mro;
 use mop::traits;
 use mop::util;
 
+my $import = Exporter::Lexical::build_exporter({
+    -exports => {
+        map { $_ => do { no strict 'refs'; \&{ 'mop::traits::' . $_ } } }
+            @mop::traits::AVAILABLE_TRAITS
+    },
+});
+
 sub import {
-    shift;
     my $pkg = caller;
     mop::internals::syntax->setup_for( $pkg );
     bootstrap();
 
-    foreach my $trait ( @mop::traits::AVAILABLE_TRAITS ) {
-        Sub::Install::install_sub({
-            code => $trait,
-            into => $pkg,
-            from => 'mop::traits'
-        });
-    }
+    goto $import;
 }
 
 sub get_meta { 
