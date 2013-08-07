@@ -196,30 +196,6 @@ sub namespace_parser {
 
     $meta->FINALIZE;
 
-    # NOTE:
-    # Now clean up the package we imported
-    # into and do it at the right time in
-    # the compilaton cycle.
-    #
-    # For a more detailed explination about
-    # why we are doing it this way, see the
-    # comment in the following test:
-    #
-    #     t/120-bugs/001-plack-parser-bug.t
-    #
-    # it will give you detailed explination
-    # as to why we are doing this.
-    #
-    # In short, don't muck with this unless
-    # you really understand the comments in
-    # that test.
-    # - SL
-    {
-        lex_stuff('{UNITCHECK{B::Hooks::EndOfScope::on_scope_end { mop->unimport }}}');
-        my $ret = parse_block();
-        $ret->();
-    }
-
     return (sub { $pkg }, 1);
 }
 
